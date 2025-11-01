@@ -1,0 +1,8 @@
+{
+    "java.project.sourcePaths": ["src"],
+    "java.project.outputPath": "bin",
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "c:\\Users\\Nielthon Modesto\\Downloads\\trabalho_final_AED_2025.2-main\\trabalho_final_AED_2025.2-main\\analise-forense-aed.jar"
+    ]
+}
