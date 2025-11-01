@@ -1,7 +1,5 @@
-import java.io.BufferedReader;
-import java.io.FileReader;
+
 import java.io.IOException;
-import java.security.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,6 +8,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import br.edu.icev.aed.forense.Alerta;
 import br.edu.icev.aed.forense.AnaliseForenseAvancada;
@@ -71,12 +71,31 @@ public class Desafios implements AnaliseForenseAvancada{
     }
       // Outros desafios não implementados
      @Override
-    public List<String> reconstruirLinhaTempo(String caminho, String userId) throws IOException {
-        System.out.println("[Desafio 2] Método ainda não implementado.");
+    public List<String> reconstruirLinhaTempo(String caminho, String sessionId) throws IOException {
+        System.out.println("[Desafio 2] Reconstruindo linha do tempo da sessão: " + sessionId);
         List<Alerta> logs = LerLog.lerLogs(caminho);
-        return new ArrayList<>();
+        Queue<String> fila = new LinkedList<>();
+        
+        
+        
+        for(Alerta log : logs){
+            if(log.getSessionId().equals(sessionId)){
+                fila.add(log.getActionType());
+            }
+        }
+        if(fila.isEmpty()){
+            System.out.println("Nenhuma sessão foi encontrada" + sessionId);
+            return new ArrayList<>();
+        }
 
+        List<String> linhaDoTempo = new ArrayList<>();
+         while (!fila.isEmpty()) {
+            linhaDoTempo.add(fila.poll());
 
+        
+        }
+            // Retorna a lista final, na ordem cronológica
+            return linhaDoTempo;
        
     }
 
