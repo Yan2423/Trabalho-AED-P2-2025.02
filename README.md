@@ -1,1 +1,1 @@
-# Trabalho-AED-P2-2025.02
+LerArquivo
