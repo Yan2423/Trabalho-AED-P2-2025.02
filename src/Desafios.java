@@ -98,12 +98,39 @@ public class Desafios implements AnaliseForenseAvancada{
             return linhaDoTempo;
        
     }
+    
+@Override
+    public List<Alerta> priorizarAlertas(String caminho, int n) throws IOException {
+        System.out.println("[Desafio 3] Priorizando " + n + " alertas mais severos.");
 
-    @Override
-    public  List<Alerta> priorizarAlertas(String var1, int var2) throws IOException{
-        System.out.println("[Desafio 3] Método ainda não implementado.");
-        List<Alerta> logs = LerLog.lerLogs(var1);
-        return new ArrayList<>();
+        // Lê todos os registros
+        List<Alerta> logs = LerLog.lerLogs(caminho);
+
+        // Lista que conterá os N alertas mais severos
+        List<Alerta> alertasMaisSeveros = new ArrayList<>();
+
+        // Se n <= 0 ou não há logs, não há o que priorizar
+        if (n <= 0 || logs.isEmpty()) {
+            return alertasMaisSeveros;
+        }
+
+        // PriorityQueue ordenada por severidade decrescente
+        java.util.PriorityQueue<Alerta> filaPrioridade = new java.util.PriorityQueue<>(
+                (a, b) -> Integer.compare(b.getSeverityLevel(), a.getSeverityLevel())
+        );
+
+        // Insere todos os alertas na fila de prioridade
+        for (Alerta log : logs) {
+            filaPrioridade.add(log);
+        }
+
+        // Remove os N primeiros mais severos
+        for (int i = 0; i < n && !filaPrioridade.isEmpty(); i++) {
+            alertasMaisSeveros.add(filaPrioridade.poll());
+        }
+
+        // Retorna a lista dos N alertas com maior nível de severidade
+        return alertasMaisSeveros;
         
     }
 
