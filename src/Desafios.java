@@ -133,11 +133,57 @@ public class Desafios implements AnaliseForenseAvancada{
         return alertasMaisSeveros;
         
     }
+    
+ @Override
+    public Map<Long, Long> encontrarPicosTransferencia(String caminho) throws IOException {
+        System.out.println("[Desafio 4] Encontrando picos de transferência.");
 
-    @Override
-    public  Map<Long, Long> encontrarPicosTransferencia(String var1) throws IOException {
-        System.out.println("[Desafio 4] Método ainda não implementado.");
-        return new HashMap<>();
+        // Lê todos os registros
+        List<Alerta> logs = LerLog.lerLogs(caminho);
+
+        // Mapa resultado: timestampAtual -> timestampDoPróximoEventoComMaisBytes
+        Map<Long, Long> mapaDePicos = new HashMap<>();
+
+        if (logs.isEmpty()) {
+            return mapaDePicos;
+        }
+
+        // Listas auxiliares para facilitar o acesso por índice
+        List<Long> timestamps = new ArrayList<>();
+        List<Long> bytesTransferidos = new ArrayList<>();
+
+        for (Alerta log : logs) {
+            timestamps.add(log.getTimestamp());
+            bytesTransferidos.add(log.getBytesTransferred());
+        }
+
+        // Pilha de índices para aplicar o padrão Next Greater Element
+        Stack<Integer> pilha = new Stack<>();
+
+        // Percorre de trás pra frente
+        for (int i = bytesTransferidos.size() - 1; i >= 0; i--) {
+
+            long bytesAtuais = bytesTransferidos.get(i);
+
+            // Remove da pilha os índices que NÃO têm bytes maiores que o atual
+            while (!pilha.isEmpty() && bytesTransferidos.get(pilha.peek()) <= bytesAtuais) {
+                pilha.pop();
+            }
+
+            // Se ainda restou algum índice na pilha, ele é o próximo pico de transferência
+            if (!pilha.isEmpty()) {
+                int indicePico = pilha.peek();
+                long timestampAtual = timestamps.get(i);
+                long timestampPico = timestamps.get(indicePico);
+                mapaDePicos.put(timestampAtual, timestampPico);
+            }
+
+            // Empilha o índice atual
+            pilha.push(i);
+        }
+
+        // Retorna o mapa de timestamp → próximo timestamp com BYTES_TRANSFERRED maior
+        return mapaDePicos;
     }
 
     @Override
