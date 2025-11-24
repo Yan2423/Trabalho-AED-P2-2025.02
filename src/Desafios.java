@@ -280,19 +280,19 @@ public class Desafios implements AnaliseForenseAvancada{
         }
 
         // Reconstrói o caminho do recursoAlvo até o recursoInicial usando o mapa de pais
-        List<String> caminho = new ArrayList<>();
+        List<String> Rota = new ArrayList<>();
         String atual = recursoAlvo;
 
         while (atual != null) {
-            caminho.add(atual);
+            Rota.add(atual);
             atual = pai.get(atual);
         }
 
         // Inverte para ficar na ordem recursoInicial → recursoAlvo
-        java.util.Collections.reverse(caminho);
+        java.util.Collections.reverse(Rota);
 
         // Retorna o caminho encontrado encapsulado em Optional
-        return Optional.of(caminho);
+        return Optional.of(Rota);
     }
 
     
