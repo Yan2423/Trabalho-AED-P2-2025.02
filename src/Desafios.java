@@ -185,11 +185,114 @@ public class Desafios implements AnaliseForenseAvancada{
         // Retorna o mapa de timestamp → próximo timestamp com BYTES_TRANSFERRED maior
         return mapaDePicos;
     }
-
+    
     @Override
-    public  Optional<List<String>> rastrearContaminacao(String var1, String var2, String var3) throws IOException {
-        System.out.println("[Desafio 5] Método ainda não implementado.");
-        return Optional.empty();
+    public Optional<List<String>> rastrearContaminacao(String caminho,
+                                                       String recursoInicial,
+                                                       String recursoAlvo) throws IOException {
+        System.out.println("[Desafio 5] Rastreando contaminação de " +
+                recursoInicial + " até " + recursoAlvo + ".");
+
+        // Lê todos os registros
+        List<Alerta> logs = LerLog.lerLogs(caminho);
+
+        // Grafo: recurso → lista de recursos acessados em seguida
+        Map<String, List<String>> grafo = new HashMap<>();
+        // Último recurso de cada sessão
+        Map<String, String> ultimoRecursoPorSessao = new HashMap<>();
+        // Conjunto de todos os recursos que aparecem
+        Set<String> recursosExistentes = new HashSet<>();
+
+        for (Alerta log : logs) {
+            String sessionId = log.getSessionId();
+            String recurso = log.getTargetResource();
+
+            if (recurso == null || recurso.isEmpty()) {
+                continue;
+            }
+
+            recursosExistentes.add(recurso);
+
+            // Se já existia um recurso anterior nessa sessão, cria aresta anterior -> atual
+            if (ultimoRecursoPorSessao.containsKey(sessionId)) {
+                String anterior = ultimoRecursoPorSessao.get(sessionId);
+
+                grafo.putIfAbsent(anterior, new ArrayList<>());
+                grafo.get(anterior).add(recurso);
+            }
+
+            // Atualiza último recurso da sessão
+            ultimoRecursoPorSessao.put(sessionId, recurso);
+        }
+
+        // Caso especial: recursoInicial == recursoAlvo
+        if (recursoInicial.equals(recursoAlvo)) {
+            if (recursosExistentes.contains(recursoInicial)) {
+                List<String> caminhoTrivial = new ArrayList<>();
+                caminhoTrivial.add(recursoInicial);
+                // Retorna um caminho trivial contendo apenas o próprio recurso
+                return Optional.of(caminhoTrivial);
+            } else {
+                // Recurso nunca apareceu no log
+                return Optional.empty();
+            }
+        }
+
+        // Se algum dos dois recursos não existir no log, não há caminho
+        if (!recursosExistentes.contains(recursoInicial)
+                || !recursosExistentes.contains(recursoAlvo)) {
+            return Optional.empty();
+        }
+
+        // BFS para encontrar caminho mais curto
+        Queue<String> fila = new LinkedList<>();
+        Set<String> visitados = new HashSet<>();
+        Map<String, String> pai = new HashMap<>();
+
+        fila.add(recursoInicial);
+        visitados.add(recursoInicial);
+
+        boolean encontrou = false;
+
+        while (!fila.isEmpty()) {
+            String atual = fila.poll();
+
+            if (atual.equals(recursoAlvo)) {
+                encontrou = true;
+                break;
+            }
+
+            List<String> vizinhos = grafo.get(atual);
+            if (vizinhos == null) continue;
+
+            for (String v : vizinhos) {
+                if (!visitados.contains(v)) {
+                    visitados.add(v);
+                    pai.put(v, atual);
+                    fila.add(v);
+                }
+            }
+        }
+
+        if (!encontrou) {
+            // Não há caminho entre recursoInicial e recursoAlvo
+            return Optional.empty();
+        }
+
+        // Reconstrói o caminho do recursoAlvo até o recursoInicial usando o mapa de pais
+        List<String> caminho = new ArrayList<>();
+        String atual = recursoAlvo;
+
+        while (atual != null) {
+            caminho.add(atual);
+            atual = pai.get(atual);
+        }
+
+        // Inverte para ficar na ordem recursoInicial → recursoAlvo
+        java.util.Collections.reverse(caminho);
+
+        // Retorna o caminho encontrado encapsulado em Optional
+        return Optional.of(caminho);
     }
 
     
