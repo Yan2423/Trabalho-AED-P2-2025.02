@@ -20,11 +20,9 @@
     <dependencies>
         <!-- JAR externo -->
         <dependency>
-            <groupId>externo</groupId>
-            <artifactId>analise-forense-aed</artifactId>
-            <version>1.0</version>
-            <scope>system</scope>
-            <systemPath>C:/Users/Nielthon Modesto/Pictures/Codigos 2025/Codigos em java/Trabalho_DymmiP2/TrabalhoDoDymmi/lib/analise-forense-aed.jar</systemPath>
+        <groupId>externo</groupId>
+        <artifactId>analise-forense-aed</artifactId>
+        <version>1.0</version>
         </dependency>
     </dependencies>
 
